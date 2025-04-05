@@ -3,32 +3,22 @@ import pandas as pd
 
 
 #Load the Model
-model = joblib.load('House_Price_Prediction_Model.joblib')
+model = joblib.load('rf_model.joblib')
 
 #get the user input
 def get_user_input():
     # Get input from the user
-    county = input("Enter county: ")
-    living_space = float(input("Enter living space: "))
-    latitude = float(input("Enter latitude: "))
-    zip_code_density = float(input("Enter zip code density: "))
-    beds = int(input("Enter number of beds: "))
-    longitude = float(input("Enter longitude: "))
-    baths = int(input("Enter number of baths: "))
-    zip_code_population = int(input("Enter zip code population: "))
-    median_household_income = float(input("Enter median household income: "))
+    county = input("Enter the county: ")
+    living_space = float(input("Enter the living space: "))
+    beds = int(input("Enter the number of beds: "))
+    baths = int(input("Enter the number of baths: "))
 
     # Create a dictionary with the input data
     input_data = {
         "County": [county],
         "Living Space": [living_space],
-        "Latitude": [latitude],
-        "Zip Code Density": [zip_code_density],
         "Beds": [beds],
-        "Longitude": [longitude],
-        "Baths": [baths],
-        "Zip Code Population": [zip_code_population],
-        "Median Household Income": [median_household_income]
+        "Baths": [baths]
     }
 
     return input_data

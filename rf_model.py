@@ -7,6 +7,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.metrics import accuracy_score
+import joblib
 
 data = pd.read_csv('American_Housing_Data_20231209.csv')
 features = ['County', 'Living Space', 'Beds', 'Baths']
@@ -35,46 +37,12 @@ preprocessor = ColumnTransformer(
         ('cat', categorical_transformer, categorical_features)
     ])
 
-# Define the parameter grid for hyperparameter tuning
-param_grid = {
-    'regressor__n_estimators': [50, 100, 150],
-    'regressor__max_depth': [None, 10, 20],
-    'regressor__min_samples_split': [2, 5, 10],
-    'regressor__min_samples_leaf': [1, 2, 4],
-    'regressor__max_features': ['sqrt', 'log2']    
-}
+rf_model = Pipeline(steps=[
+    ('preprocessor', preprocessor),
+    ('regressor', RandomForestRegressor(n_estimators=150, max_depth=None, max_features='log2', min_samples_leaf=1, min_samples_split=2, random_state=42))
+])
 
-# Create a pipeline for the random forest model
-random_forest_pipeline = Pipeline(steps=[('preprocessor', preprocessor),
-                                         ('regressor', RandomForestRegressor(random_state=42))])
+rf_model.fit(X_train, y_train)
+y_pred = rf_model.predict(X_test)
 
-# Create a RandomizedSearchCV object
-random_search = RandomizedSearchCV(random_forest_pipeline, param_distributions=param_grid, n_iter=10, cv=5, random_state=42)
-
-# Fit the RandomizedSearchCV object to the training data
-random_search.fit(X_train, y_train)
-
-# Get the best hyperparameters
-best_params = random_search.best_params_
-
-# Print the best hyperparameters
-print("Best Hyperparameters:", best_params)
-
-# Get the best model
-best_model = random_search.best_estimator_
-
-# Print the best model
-print("Best Model:", best_model)
-
-# Make predictions on the test set
-y_pred_random_forest = best_model.predict(X_test)
-
-# Evaluate the random forest model
-mse_random_forest = mean_squared_error(y_test, y_pred_random_forest)
-mae_random_forest = mean_absolute_error(y_test, y_pred_random_forest)    
-r2_random_forest = r2_score(y_test, y_pred_random_forest)
-
-print("Random Forest Model Metrics:")
-print("Mean Squared Error:", mse_random_forest)
-print("Mean Absolute Error:", mae_random_forest)
-print("R-squared:", r2_random_forest)
+joblib.dump(rf_model, 'rf_model.joblib')
